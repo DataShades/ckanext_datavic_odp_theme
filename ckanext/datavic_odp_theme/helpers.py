@@ -123,10 +123,10 @@ def featured_resource_preview(package):
     featured_preview = None
     if package.get("nominated_view_resource", None):
         try:
-            resource_view = toolkit.get_action("resource_view_list")(
+            resource_view = tk.get_action("resource_view_list")(
                 {}, {"id": package["nominated_view_resource"]}
             )[0]
-            resource = toolkit.get_action("resource_show")(
+            resource = tk.get_action("resource_show")(
                 {}, {"id": resource_view["resource_id"]}
             )
             featured_preview = {"preview": resource_view, "resource": resource}
@@ -196,7 +196,7 @@ def url_for_dtv_config(ids: list[str], embedded: bool = True) -> str:
     """Build URL where DigitalTwin can get map configuration for the preview."""
 
     encoded = base64.urlsafe_b64encode(bytes(json.dumps(ids), "utf8"))
-    return toolkit.url_for(
+    return tk.url_for(
         "vic_odp.dtv_config", encoded=encoded, embedded=embedded, _external=True
     )
 
