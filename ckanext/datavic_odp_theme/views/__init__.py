@@ -19,7 +19,7 @@ from ckanext.datavic_odp_theme.views.group import odp_group
 NotFound = tk.ObjectNotFound
 PERCENTAGE_OF_CHANCE = 0.5
 CONFIG_BASE_MAP = "ckanext.datavicmain.dtv.base_map_id"
-DEFAULT_BASE_MAP = "vic-cartographic"
+DEFAULT_BASE_MAP = "VIC Cartographic"
 
 vic_odp = Blueprint("vic_odp", __name__)
 
@@ -88,24 +88,39 @@ def dtv_config(encoded: str, embedded: bool):
             }
         )
 
-    return jsonify(
-        {
-            "baseMaps": {
-                "defaultBaseMapId": tk.config.get(
-                    CONFIG_BASE_MAP, DEFAULT_BASE_MAP
-                )
-            },
-            "catalog": catalog,
-            "workbench": [item["id"] for item in catalog],
-            "elements": {
-                "map-navigation": {"disabled": embedded},
-                "menu-bar": {"disabled": embedded},
-                "bottom-dock": {"disabled": embedded},
-                "map-data-count": {"disabled": embedded},
-                "show-workbench": {"disabled": embedded},
-            },
-        }
+    base_map = tk.config.get(
+        CONFIG_BASE_MAP, DEFAULT_BASE_MAP
     )
+    base_map = tk.request.args.get("__dtv_base_map", base_map)
+
+    config = {
+        "baseMaps": {
+            "defaultBaseMapId": base_map,
+            "previewBaseMapId": base_map
+        },
+        "catalog": catalog,
+        "workbench": [item["id"] for item in catalog],
+    }
+
+    if embedded:
+        config.update({"elements": {
+            "map-navigation": {
+                "disabled": embedded
+            },
+            "menu-bar": {
+                "disabled": embedded
+            },
+            "bottom-dock": {
+                "disabled": embedded
+            },
+            "map-data-count": {
+                "disabled": embedded
+            },
+            "show-workbench": {
+                "disabled": embedded
+            }
+        }})
+    return jsonify(config)
 
 
 vic_odp.add_url_rule("/dataset/groups/<id>", view_func=vic_groups_list)
